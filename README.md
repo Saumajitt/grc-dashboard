@@ -104,9 +104,11 @@ grc-dashboard/
 └── README.md
 ```
 
-## Testing the APIs
+## API Documentation
 
-### Register User
+### Authentication APIs
+
+#### Register User
 
 **POST** `/api/auth/register`
 
@@ -118,47 +120,202 @@ grc-dashboard/
 }
 ```
 
----
-
-### Login
+#### Login
 
 **POST** `/api/auth/login` → Receive JWT token
 
 ---
 
-### Upload Evidence
+## 📄 Evidence API Documentation
 
-**POST** `/api/evidence/upload`
+**Base URL:** `/api/evidence`  
+**Authentication:** JWT (Bearer Token) required  
+**Roles:** `client` (normal user), `admin`
+
+### 1. Upload Evidence
+
+**Endpoint:** `POST /api/evidence/upload`  
+**Description:** Upload multiple evidence files at once.  
+**Access:** Authenticated users (`client` and `admin`)
 
 **Headers:**
 
 ```
-Authorization: Bearer <JWT>
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: multipart/form-data
 ```
 
-**Body:** (form-data)
+**Body (form-data):**
 
-- `files`: select multiple files (up to 10)
-- `title`: "Test Evidence Batch 1"
-- `category`: "policy"
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| files | File[] | Yes | One or more evidence files (max 10) |
+| title | String | Yes | Common title for the batch |
+| category | String | Optional | One of `policy`, `diagram`, `doc`, `other` |
+
+**Response:** `201 Created`
+
+```json
+{
+  "message": "Evidence uploaded successfully",
+  "count": 4,
+  "files": [
+    {
+      "_id": "evidence_id",
+      "title": "Test Evidence Batch 1",
+      "category": "policy",
+      "filename": "file_name.pdf",
+      "path": "path/to/file",
+      "uploadedBy": "user_id",
+      "createdAt": "timestamp",
+      "updatedAt": "timestamp"
+    }
+  ]
+}
+```
+
+**Errors:**
+
+- `400` → No files uploaded
+- `401` → Unauthorized
 
 ---
 
-### Get Evidence
+### 2. Get User Evidence
 
-**GET** `/api/evidence`
+**Endpoint:** `GET /api/evidence`  
+**Description:** Fetch a paginated list of evidence uploaded by the authenticated user.  
+**Access:** Normal users (`client`) only; admins are redirected to `/admin/dashboard`.
+
+**Query Parameters (Optional):**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| page | int | 1 | Page number |
+| limit | int | 10 | Number of records per page |
+| category | str | - | Filter by category (`policy`, `diagram`, `doc`, `other`) |
+
+**Response:** `200 OK`
+
+```json
+{
+  "page": 1,
+  "totalPages": 1,
+  "total": 3,
+  "count": 3,
+  "evidences": [
+    {
+      "_id": "evidence_id",
+      "title": "Test Evidence Batch 1",
+      "category": "policy",
+      "filename": "file_name.pdf",
+      "path": "path/to/file",
+      "uploadedBy": {
+        "_id": "user_id",
+        "email": "user@example.com",
+        "role": "client"
+      },
+      "createdAt": "timestamp",
+      "updatedAt": "timestamp"
+    }
+  ]
+}
+```
+
+**Errors:**
+
+- `401` → Unauthorized
+- `403` → Admins cannot use this endpoint
+
+---
+
+### 3. Update Evidence
+
+**Endpoint:** `PUT /api/evidence/:id`  
+**Description:** Update metadata of an existing evidence file (title or category).  
+**Access:**
+
+- Admin: Can update any evidence
+- Client: Can update only their own uploads
 
 **Headers:**
 
 ```
-Authorization: Bearer <JWT>
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: application/json
 ```
 
-**Query Parameters:**
+**Body:**
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| title | String | Optional | New title for the evidence |
+| category | String | Optional | New category (`policy`, `diagram`, `doc`, `other`) |
+
+**Response:** `200 OK`
+
+```json
+{
+  "message": "Evidence updated successfully",
+  "evidence": {
+    "_id": "evidence_id",
+    "title": "Updated Quarterly Report",
+    "category": "doc",
+    "filename": "file_name.pdf",
+    "path": "path/to/file",
+    "uploadedBy": "user_id",
+    "createdAt": "timestamp",
+    "updatedAt": "timestamp"
+  }
+}
+```
+
+**Errors:**
+
+- `401` → Unauthorized
+- `403` → Forbidden if trying to update evidence not owned by the client
+- `404` → Evidence not found
+- `400` → Invalid category value
+
+---
+
+### 4. Delete Evidence
+
+**Endpoint:** `DELETE /api/evidence/:id`  
+**Description:** Delete an evidence record and its corresponding file from the server.  
+**Access:**
+
+- Admin: Can delete any evidence
+- Client: Can delete only their own uploads
+
+**Headers:**
 
 ```
-?page=1&limit=10&category=policy
+Authorization: Bearer <JWT_TOKEN>
 ```
+
+**Response:** `200 OK`
+
+```json
+{
+  "message": "Evidence deleted successfully",
+  "deletedId": "evidence_id"
+}
+```
+
+**Errors:**
+
+- `401` → Unauthorized
+- `403` → Forbidden if trying to delete evidence not owned by the client
+- `404` → Evidence not found
+
+---
+
+### 🔹 Notes
+
+- All endpoints use **JWT authentication** via the `Authorization` header
+- File uploads are restricted to **max 10 files per request**
+- `category` field is restricted to **enum values**: `policy`, `diagram`, `doc`, `other`
 
 ---
 
