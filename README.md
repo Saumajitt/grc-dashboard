@@ -106,50 +106,69 @@ grc-dashboard/
 
 ## Testing the APIs
 
-```md
-Register User (POST /api/auth/register)
+### Register User
 
+**POST** `/api/auth/register`
+
+```json
 {
     "email": "normaluser@example.com",
     "password": "StrongPassword123",
     "role": "client"
 }
+```
 
 ---
 
-Login (POST /api/auth/login) → Receive JWT token.
+### Login
+
+**POST** `/api/auth/login` → Receive JWT token
 
 ---
 
-Upload Evidence (POST /api/evidence/upload)
+### Upload Evidence
 
-Headers:
+**POST** `/api/evidence/upload`
+
+**Headers:**
+
+```
 Authorization: Bearer <JWT>
+```
 
-Body: form-data
-files: select multiple files (up to 10)
-title: "Test Evidence Batch 1"
-category: "policy"
+**Body:** (form-data)
+
+- `files`: select multiple files (up to 10)
+- `title`: "Test Evidence Batch 1"
+- `category`: "policy"
 
 ---
 
-Get Evidence (GET /api/evidence)
+### Get Evidence
 
-Headers:
+**GET** `/api/evidence`
+
+**Headers:**
+
+```
 Authorization: Bearer <JWT>
+```
 
-Query:
+**Query Parameters:**
+
+```
 ?page=1&limit=10&category=policy
+```
 
 ---
 
-Roadmap (MVP)
+## Roadmap (MVP)
 
-✅ User Authentication (Role-based)
-✅ Evidence Upload API (multi-file)
-✅ Bulk Upload API (Third-party orgs)
-⬜ Dashboard layout (Next.js + React)
-⬜ Integration: Connect frontend to backend APIs
-⬜ Admin API (all users, evidence, third-party)
-⬜ Sorting, filtering, and pagination enhancements
-⬜ Audit logs and file validation
+- ✅ User Authentication (Role-based)
+- ✅ Evidence Upload API (multi-file)
+- ✅ Bulk Upload API (Third-party orgs)
+- ⬜ Dashboard layout (Next.js + React)
+- ⬜ Integration: Connect frontend to backend APIs
+- ⬜ Admin API (all users, evidence, third-party)
+- ⬜ Sorting, filtering, and pagination enhancements
+- ⬜ Audit logs and file validation
