@@ -86,20 +86,23 @@ GRC professionals face two recurring workflow inefficiencies:
 
 ---
 
+# GRC Dashboard
+
 ## Project Structure
+
+```
 grc-dashboard/
 │
-├── frontend/ # Next.js app
-├── backend/ # Node.js + Express APIs
-│ ├── controllers/
-│ ├── models/
-│ ├── routes/
-│ ├── middleware/
-│ └── uploads/
-├── db/ # MongoDB setup & scripts
+├── frontend/           # Next.js app
+├── backend/            # Node.js + Express APIs
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── middleware/
+│   └── uploads/
+├── db/                 # MongoDB setup & scripts
 └── README.md
-
----
+```
 
 ## Testing the APIs
 
