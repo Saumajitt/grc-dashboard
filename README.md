@@ -319,6 +319,274 @@ Authorization: Bearer <JWT_TOKEN>
 
 ---
 
+## 📁 Third-Party API Documentation
+
+**Base URL:** `/api/thirdparties`  
+**Authentication:** JWT (Bearer Token required)  
+**Roles:** `client`, `admin`
+
+### 1. Bulk Upload Third-Parties (CSV)
+
+**Endpoint:** `POST /api/thirdparties/upload`  
+**Description:** Upload a CSV to create multiple third-party entries at once.  
+**Access:** Admin only
+
+**Headers:**
+
+```
+Authorization: Bearer <JWT_TOKEN>
+Content-Type: multipart/form-data
+```
+
+**Body (form-data):**
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| file | File | Yes | CSV file containing third-party data |
+
+**Response:** `201 Created`
+
+```json
+{
+  "message": "CSV processed",
+  "successCount": 10,
+  "failureCount": 2,
+  "errors": [
+    {"row": {...}, "error": "name is required"},
+    {"row": {...}, "error": "riskScore must be a number"}
+  ]
+}
+```
+
+**Errors:**
+
+- `400` → No file uploaded
+- `401` → Unauthorized
+- `403` → Forbidden if not admin
+
+---
+
+### 2. Get All Third-Parties
+
+**Endpoint:** `GET /api/thirdparties`  
+**Description:** Fetch a paginated list of all third-party entries.  
+**Access:** Admin only
+
+**Query Parameters (Optional):**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| page | int | 1 | Page number |
+| limit | int | 10 | Number of records per page |
+| industry | str | - | Filter by industry |
+| name | str | - | Partial match on name |
+
+**Response:** `200 OK`
+
+```json
+{
+  "page": 1,
+  "totalPages": 2,
+  "total": 15,
+  "count": 10,
+  "thirdParties": [
+    {
+      "_id": "abc123",
+      "name": "Third Party Co",
+      "industry": "IT",
+      "riskScore": 75,
+      "createdBy": {
+        "_id": "user123",
+        "email": "admin@example.com",
+        "role": "admin"
+      },
+      "createdAt": "timestamp",
+      "updatedAt": "timestamp"
+    }
+  ]
+}
+```
+
+**Errors:**
+
+- `401` → Unauthorized
+- `403` → Forbidden if not admin
+
+---
+
+### 3. Get Single Third-Party
+
+**Endpoint:** `GET /api/thirdparties/:id`  
+**Description:** Fetch details of a specific third-party by ID.  
+**Access:**
+
+- Admin: access to all entries
+- Client: access only if created by them (usually restricted; default client cannot access third-party list)
+
+**Response:** `200 OK`
+
+```json
+{
+  "thirdParty": {
+    "_id": "abc123",
+    "name": "Third Party Co",
+    "industry": "IT",
+    "riskScore": 75,
+    "createdBy": "user123",
+    "createdAt": "timestamp",
+    "updatedAt": "timestamp"
+  }
+}
+```
+
+**Errors:**
+
+- `401` → Unauthorized
+- `403` → Forbidden if client tries to access another user's entry
+- `404` → Not found
+
+---
+
+### 4. Update Third-Party
+
+**Endpoint:** `PUT /api/thirdparties/:id`  
+**Description:** Update a third-party entry.  
+**Access:**
+
+- Admin: update any entry
+- Client: update only their own entries
+
+**Body (JSON):**
+
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| name | String | Optional | Name of the third-party |
+| industry | String | Optional | Industry |
+| riskScore | Number | Optional | Risk score |
+| email | String | Optional | Contact email |
+| company | String | Optional | Company name |
+| role | String | Optional | Role/position |
+
+**Response:** `200 OK`
+
+```json
+{
+  "message": "Third party updated successfully",
+  "thirdParty": {
+    "_id": "abc123",
+    "name": "Updated Name",
+    "industry": "IT",
+    "riskScore": 80,
+    "createdBy": "user123",
+    "createdAt": "timestamp",
+    "updatedAt": "timestamp"
+  }
+}
+```
+
+**Errors:**
+
+- `401` → Unauthorized
+- `403` → Forbidden if client tries to update entry not created by them
+- `404` → Not found
+
+---
+
+### 5. Delete Third-Party
+
+**Endpoint:** `DELETE /api/thirdparties/:id`  
+**Description:** Delete a third-party entry.  
+**Access:**
+
+- Admin: delete any entry
+- Client: delete only their own entries
+
+**Response:** `200 OK`
+
+```json
+{
+  "message": "Third party deleted successfully",
+  "deletedId": "abc123"
+}
+```
+
+**Errors:**
+
+- `401` → Unauthorized
+- `403` → Forbidden if client tries to delete entry not created by them
+- `404` → Not found
+
+---
+
+## 👤 Profile & Logout APIs
+
+### 1. Get User Profile
+
+**Endpoint:** `GET /api/users/profile`  
+**Description:** Fetch the logged-in user's profile data along with uploaded content.  
+**Access:** Authenticated users (admin/client)
+
+**Response:** `200 OK`
+
+```json
+{
+  "user": {
+    "_id": "user123",
+    "email": "admin@example.com",
+    "role": "admin",
+    "createdAt": "timestamp",
+    "updatedAt": "timestamp"
+  },
+  "stats": {
+    "evidenceCount": 6,
+    "thirdPartyCount": 4
+  },
+  "evidence": [...],         
+  "thirdParties": [...]      
+}
+```
+
+**RBAC Behavior:**
+
+- **Admin:** sees all evidence and third-party entries, including client uploads
+- **Client:** sees only their own evidence, cannot view other clients' evidence or third-parties
+
+---
+
+### 2. Logout User
+
+**Endpoint:** `POST /api/users/logout`  
+**Description:** Logout endpoint (stateless JWT; frontend deletes token)  
+**Access:** Authenticated users
+
+**Response:** `200 OK`
+
+```json
+{
+  "message": "Logout successful"
+}
+```
+
+---
+
+## ⚖️ Role-Based Access Control (RBAC) Summary
+
+| Endpoint | Client Access | Admin Access |
+|----------|---------------|--------------|
+| `/api/evidence/upload` | ✅ own uploads | ✅ all uploads |
+| `/api/evidence` | ✅ only own evidence | ✅ all evidence |
+| `/api/evidence/:id` | ✅ update/delete own | ✅ update/delete any |
+| `/api/thirdparties` (all CRUD) | ❌ mostly restricted | ✅ full access |
+| `/api/users/profile` | ✅ own profile & own evidence | ✅ full dashboard with all users' uploads |
+| `/api/users/logout` | ✅ | ✅ |
+
+**Key Points:**
+
+- Clients cannot access other clients' uploads or third-party entries
+- Admins have unrestricted access and can see all users' data
+
+---
+
 ## Roadmap (MVP)
 
 - ✅ User Authentication (Role-based)
