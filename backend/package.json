@@ -1,0 +1,33 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "grc dashboard backend",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Saumajitt/grc-dashboard.git"
+  },
+  "keywords": [
+    "node",
+    "grc"
+  ],
+  "author": "Saumajit Malakar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Saumajitt/grc-dashboard/issues"
+  },
+  "homepage": "https://github.com/Saumajitt/grc-dashboard#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "csv-parser": "^3.2.0",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.18.2",
+    "multer": "^2.0.2"
+  }
+}
