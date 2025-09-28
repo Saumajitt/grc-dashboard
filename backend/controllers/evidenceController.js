@@ -43,15 +43,24 @@ export const uploadEvidence = async (req, res) => {
             category,
             filename: file.filename,
             path: file.path,
+            size: file.size,
             uploadedBy: req.user._id,
         }));
 
         const savedEvidence = await Evidence.insertMany(evidenceDocs);
 
+        // ✅ Add fileUrl before sending back
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
+        const response = savedEvidence.map(ev => ({
+            ...ev.toObject(),
+            fileUrl: `${baseUrl}/uploads/${ev.filename}`,
+        }));
+
+
         res.status(201).json({
             message: "Evidence uploaded successfully",
-            count: savedEvidence.length,
-            files: savedEvidence,
+            count: response.length,
+            files: response,
         });
     } catch (error) {
         console.error("Upload evidence error:", error.message);
@@ -109,12 +118,19 @@ export const getEvidences = async (req, res) => {
             .limit(limit)
             .populate("uploadedBy", "email role"); // optional: populate uploader info
 
+        // ✅ Add fileUrl
+        const baseUrl = `${req.protocol}://${req.get("host")}`;
+        const response = evidences.map(ev => ({
+            ...ev.toObject(),
+            fileUrl: `${baseUrl}/uploads/${ev.filename}`,
+        }));
+
         res.json({
             page,
             totalPages: Math.ceil(total / limit),
             total,
-            count: evidences.length,
-            evidences,
+            count: response.length,
+            evidences: response,
         });
     } catch (error) {
         console.error("Get evidences error:", error.message);
