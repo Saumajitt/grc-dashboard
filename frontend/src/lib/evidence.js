@@ -53,7 +53,7 @@ export const uploadEvidence = async (formData, onUploadProgress, signal) => {
     try {
         const config = {
             headers: { "Content-Type": "multipart/form-data" },
-            timeout: 300000, // 5 minutes for large file uploads
+            timeout: 300000, 
         };
 
         if (onUploadProgress) {
