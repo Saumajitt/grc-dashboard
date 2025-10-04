@@ -1,27 +1,29 @@
 // src/app/dashboard/page.jsx
 "use client";
 
+
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import { useRefresh } from "@/context/RefreshContext";  // ✅ NEW
+
 import EvidenceDataTable from "@/components/EvidenceDataTable";
 import EvidenceSummary from "@/components/EvidenceSummary";
 import { getEvidence } from "@/lib/evidence";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import EvidenceUploadModal from "@/components/EvidenceUploadModal";
-import { Upload, FileText, Activity, Users, TrendingUp } from "lucide-react";
+import { FileText, Activity, Users, TrendingUp } from "lucide-react";
 import { formatFileSize } from "@/lib/utils";
+
 
 export default function ClientDashboard() {
     const { user, loading } = useAuth();
-    const [refreshFlag, setRefreshFlag] = useState(0);
+    const { refreshFlag } = useRefresh();
+    const [localRefresh, setLocalRefresh] = useState(0);
     const [evidences, setEvidences] = useState([]);
     const [fetching, setFetching] = useState(true);
     const [error, setError] = useState(null);
-    const [open, setOpen] = useState(false);
-
+    
     useEffect(() => {
         if (!user) return;
 
@@ -62,11 +64,11 @@ export default function ClientDashboard() {
             isMounted = false;
             controller.abort();
         };
-    }, [refreshFlag, user]);
+    }, [user, refreshFlag, localRefresh]);
 
     // Handle refresh more carefully
     const handleRefresh = () => {
-        setRefreshFlag(prev => prev + 1);
+        setLocalRefresh(prev => prev + 1);
     };
 
     if (loading) {
@@ -112,12 +114,12 @@ export default function ClientDashboard() {
         );
     }
 
-    const getGreeting = () => {
-        const hour = new Date().getHours();
-        if (hour < 12) return "Good morning";
-        if (hour < 18) return "Good afternoon";
-        return "Good evening";
-    };
+    // const getGreeting = () => {
+    //     const hour = new Date().getHours();
+    //     if (hour < 12) return "Good morning";
+    //     if (hour < 18) return "Good afternoon";
+    //     return "Good evening";
+    // };
 
     // Memoize calculations to prevent unnecessary recalculations
     const thisMonthCount = evidences.filter(e =>
@@ -139,10 +141,10 @@ export default function ClientDashboard() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
             {/* Header */}
-            <div className="border-b border-slate-800/50 backdrop-blur-sm bg-slate-950/70 sticky top-0 z-40">
-                <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            {/* <div className="border-b border-slate-800/50 backdrop-blur-sm bg-slate-950/70 sticky top-0 z-40">
+                <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center"> */}
                     {/* Left: Greeting */}
-                    <div className="space-y-1">
+                    {/* <div className="space-y-1">
                         <div className="flex items-center space-x-2">
                             <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
                             <span className="text-xs text-emerald-400">Online</span>
@@ -157,10 +159,10 @@ export default function ClientDashboard() {
                                 day: "numeric",
                             })}
                         </p>
-                    </div>
+                    </div> */}
 
                     {/* Right: Actions */}
-                    <div className="flex items-center space-x-4">
+                    {/* <div className="flex items-center space-x-4">
                         <Dialog open={open} onOpenChange={setOpen}>
                             <DialogTrigger asChild>
                                 <Button
@@ -184,15 +186,15 @@ export default function ClientDashboard() {
                                     }}
                                 />
                             </DialogContent>
-                        </Dialog>
+                        </Dialog> */}
 
                         {/* Avatar fallback */}
-                        <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-medium">
+                        {/* <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white font-medium">
                             {user.email[0].toUpperCase()}
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
 
                         
