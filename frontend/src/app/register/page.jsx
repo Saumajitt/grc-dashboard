@@ -1,3 +1,4 @@
+//frontend\src\app\register\page.jsx
 "use client";
 
 import { GalleryVerticalEnd } from "lucide-react";

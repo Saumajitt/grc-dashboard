@@ -1,6 +1,7 @@
 // src/app/layout.js
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthProvider";
+import { RefreshProvider } from "@/context/RefreshContext";
 
 export const metadata = {
   title: "GRC Dashboard",
@@ -11,7 +12,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <RefreshProvider>
+            {children}
+          </RefreshProvider>
+        </AuthProvider>
       </body>
     </html>
   );
