@@ -160,7 +160,12 @@ export default function AdminDashboard() {
                                                     </span>
                                                 </td>
                                                 <td className="py-3 px-4 text-right">
-                                                    <button className="text-red-400 hover:text-red-300 text-sm font-medium">
+                                                
+                                                 {/* add disable functionality later */}
+                                                    <button
+                                                        disabled
+                                                        className="text-red-400 hover:text-red-300 text-sm font-medium"
+                                                    >
                                                         Delete
                                                     </button>
                                                 </td>

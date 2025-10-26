@@ -8,9 +8,10 @@ import { Activity } from "lucide-react";
 import { useRefresh } from "@/context/RefreshContext";
 
 export default function EvidencePage() {
-    const { refreshFlag } = useRefresh();
+    const { refreshFlag, triggerRefresh } = useRefresh();
     const [evidences, setEvidences] = useState([]);
     const [loading, setLoading] = useState(true);
+    
 
     useEffect(() => {
         async function fetchEvidence() {
@@ -36,7 +37,7 @@ export default function EvidencePage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <EvidenceDataTable evidences={evidences} loading={loading} />
+                    <EvidenceDataTable evidences={evidences} loading={loading} onRefresh={triggerRefresh} />
                 </CardContent>
             </Card>
         </div>

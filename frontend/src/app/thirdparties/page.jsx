@@ -8,16 +8,24 @@ import { Users } from "lucide-react";
 export default function ThirdPartiesPage() {
     const [thirdParties, setThirdParties] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         async function fetchThirdParties() {
             setLoading(true);
+            setError(null);
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/thirdparties`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/thirdparties`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    },
+                });    
                 const data = await res.json();
+                if (!res.ok) throw new Error(data.message || "Failed to load third parties");
                 setThirdParties(data || []);
             } catch (err) {
                 console.error("Error loading third-parties:", err);
+                setError(err.message);
             } finally {
                 setLoading(false);
             }
@@ -34,7 +42,9 @@ export default function ThirdPartiesPage() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {loading ? (
+                    {error ? (
+                        <p className="text-red-400">Error: {error}</p>
+                    ) : loading ? (
                         <p className="text-slate-400">Loading vendors...</p>
                     ) : thirdParties.length > 0 ? (
                         <ul className="space-y-2">
