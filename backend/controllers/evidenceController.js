@@ -10,7 +10,7 @@ if (!fs.existsSync(uploadsFolder)) {
     fs.mkdirSync(uploadsFolder, { recursive: true });
 }
 
-// Multer setup - local storage (for MVP)
+// Multer setup - local storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, uploadsFolder); // absolute path
@@ -49,7 +49,7 @@ export const uploadEvidence = async (req, res) => {
 
         const savedEvidence = await Evidence.insertMany(evidenceDocs);
 
-        // ✅ Add fileUrl before sending back
+        // Add fileUrl before sending back
         const baseUrl = `${req.protocol}://${req.get("host")}`;
         const response = savedEvidence.map(ev => ({
             ...ev.toObject(),
@@ -118,7 +118,7 @@ export const getEvidences = async (req, res) => {
             .limit(limit)
             .populate("uploadedBy", "email role"); // optional: populate uploader info
 
-        // ✅ Add fileUrl
+        // Add fileUrl
         const baseUrl = `${req.protocol}://${req.get("host")}`;
         const response = evidences.map(ev => ({
             ...ev.toObject(),

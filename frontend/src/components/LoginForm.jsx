@@ -1,3 +1,4 @@
+//frontend\src\components\LoginForm.jsx
 "use client";
 
 import { useState } from "react";
@@ -20,7 +21,7 @@ export default function LoginForm({ className }) {
         setLoading(true);
         try {
             const role = await login(data.email, data.password);
-            if (role === "admin") router.push("/admin/dashboard");
+            if (role === "admin") router.push("/admin");
             else router.push("/dashboard");
         } catch (err) {
             setError(err.response?.data?.message || err.message || "Login failed");
